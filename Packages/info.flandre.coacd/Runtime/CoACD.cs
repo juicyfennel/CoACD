@@ -209,10 +209,10 @@ public unsafe class CoACD : MonoBehaviour
 				var tempMeshes = RunACD(unityV, unityF);
 				foreach (var tempMesh in tempMeshes)
 				{
-					var mesh = new Mesh();
+					var m = new Mesh();
 					mesh.vertices = tempMesh.v;
 					mesh.triangles = tempMesh.f;
-					decomposedMeshes.Add(mesh);
+					decomposedMeshes.Add(m);
 				}
 			}
 		}
@@ -299,10 +299,10 @@ public unsafe class CoACD : MonoBehaviour
 				var tempMeshes = RunACD(unityV, unityF);
 				foreach (var tempMesh in tempMeshes)
 				{
-					var mesh = new Mesh();
+					var m = new Mesh();
 					mesh.vertices = tempMesh.v;
 					mesh.triangles = tempMesh.f;
-					decomposedMeshes.Add(mesh);
+					decomposedMeshes.Add(m);
 				}
 			}
 		}
