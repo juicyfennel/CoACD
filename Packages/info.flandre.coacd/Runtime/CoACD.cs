@@ -53,7 +53,7 @@ public unsafe class CoACD : MonoBehaviour
 	public MeshFilter target;
 	public bool isTrigger,
 							hideColliders = true;
-	public PhysicMaterial physicMaterial;
+	public PhysicsMaterial physicMaterial;
 	//struct 
 	[Serializable]
 	public unsafe struct Parameters
@@ -115,9 +115,9 @@ public unsafe class CoACD : MonoBehaviour
 	}
 #endif
 
-	public List<Mesh> RunACD(Vector3[] unityV, int[] unityF)
+	public List<(Vector3[] v, int[] f)> RunACD(Vector3[] unityV, int[] unityF)
 	{
-		var v      = new double[unityV.Length * 3];
+		var v = new double[unityV.Length * 3];
 		for (var i = 0; i < unityV.Length; i++) {
 			v[3 * i + 0] = unityV[i].x;
 			v[3 * i + 1] = unityV[i].y;
@@ -125,12 +125,11 @@ public unsafe class CoACD : MonoBehaviour
 		}
 		fixed (double* vptr = v) {
 			fixed (int* fptr = unityF) {
-				var mi = new MeshInterface() {vertices_ptr = vptr, vertices_count = (ulong) unityV.Length, triangles_ptr = fptr, triangles_count = (ulong) (unityF.LongLength / 3)};
+				var mi = new MeshInterface() {vertices_ptr = vptr, vertices_count = (ulong) unityV.LongLength, triangles_ptr = fptr, triangles_count = (ulong) (unityF.LongLength / 3)};
 				using var res = Run(ref mi, parameters.threshold, parameters.maxConvexHull, (int) parameters.preprocessMode, parameters.preprocessResolution, parameters.sampleResolution,
 					parameters.mctsNodes, parameters.mctsIteration, parameters.mctsMaxDepth, parameters.pca, parameters.merge, parameters.seed);
-				var meshes = new List<Mesh>();
+				var meshes = new List<(Vector3[] v, int[] f)>();
 				for (ulong i = 0; i < res.meshes_count; i++) {
-					var rmesh = new Mesh();
 					var verts = new Vector3[res.meshes_ptr[i].vertices_count];
 					var tris  = new int[res.meshes_ptr[i].triangles_count * 3];
 					for (ulong j = 0; j < res.meshes_ptr[i].vertices_count; j++) {
@@ -138,9 +137,7 @@ public unsafe class CoACD : MonoBehaviour
 							(float) res.meshes_ptr[i].vertices_ptr[j * 3 + 2]);
 					}
 					for (ulong j = 0; j < res.meshes_ptr[i].triangles_count * 3; j++) { tris[j] = res.meshes_ptr[i].triangles_ptr[j]; }
-					rmesh.SetVertices(verts);
-					rmesh.SetTriangles(tris, 0);
-					meshes.Add(rmesh);
+					meshes.Add((verts, tris));
 				}
 				return meshes;
 			}
@@ -210,7 +207,13 @@ public unsafe class CoACD : MonoBehaviour
 				var unityV = meshToDecompose.vertices;
 				var unityF = meshToDecompose.triangles;
 				var tempMeshes = RunACD(unityV, unityF);
-				decomposedMeshes.AddRange(tempMeshes);
+				foreach (var tempMesh in tempMeshes)
+				{
+					var mesh = new Mesh();
+					mesh.vertices = tempMesh.v;
+					mesh.triangles = tempMesh.f;
+					decomposedMeshes.Add(mesh);
+				}
 			}
 		}
 		EditorUtility.ClearProgressBar();
@@ -294,7 +297,13 @@ public unsafe class CoACD : MonoBehaviour
 				var unityV = meshToDecompose.vertices;
 				var unityF = meshToDecompose.triangles;
 				var tempMeshes = RunACD(unityV, unityF);
-				decomposedMeshes.AddRange(tempMeshes);
+				foreach (var tempMesh in tempMeshes)
+				{
+					var mesh = new Mesh();
+					mesh.vertices = tempMesh.v;
+					mesh.triangles = tempMesh.f;
+					decomposedMeshes.Add(mesh);
+				}
 			}
 		}
 		EditorUtility.ClearProgressBar();
