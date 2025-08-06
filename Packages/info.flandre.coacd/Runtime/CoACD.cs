@@ -117,15 +117,15 @@ public unsafe class CoACD : MonoBehaviour
 
 	public List<Mesh> RunACD(Vector3[] unityV, int[] unityF)
 	{
-		var v      = new double[mesh.vertexCount * 3];
-		for (var i = 0; i < mesh.vertexCount; i++) {
+		var v      = new double[unityV.Count * 3];
+		for (var i = 0; i < unityV.Count; i++) {
 			v[3 * i + 0] = unityV[i].x;
 			v[3 * i + 1] = unityV[i].y;
 			v[3 * i + 2] = unityV[i].z;
 		}
 		fixed (double* vptr = v) {
 			fixed (int* fptr = unityF) {
-				var mi = new MeshInterface() {vertices_ptr = vptr, vertices_count = (ulong) mesh.vertexCount, triangles_ptr = fptr, triangles_count = (ulong) (unityF.LongLength / 3)};
+				var mi = new MeshInterface() {vertices_ptr = vptr, vertices_count = (ulong) unityV.Count, triangles_ptr = fptr, triangles_count = (ulong) (unityF.LongLength / 3)};
 				using var res = Run(ref mi, parameters.threshold, parameters.maxConvexHull, (int) parameters.preprocessMode, parameters.preprocessResolution, parameters.sampleResolution,
 					parameters.mctsNodes, parameters.mctsIteration, parameters.mctsMaxDepth, parameters.pca, parameters.merge, parameters.seed);
 				var meshes = new List<Mesh>();
