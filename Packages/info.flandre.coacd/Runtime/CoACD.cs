@@ -115,10 +115,8 @@ public unsafe class CoACD : MonoBehaviour
 	}
 #endif
 
-	public List<Mesh> RunACD(Mesh mesh)
+	public List<Mesh> RunACD(Vector3[] unityV, int[] unityF)
 	{
-		var unityV = mesh.vertices;
-		var unityF = mesh.triangles;
 		var v      = new double[mesh.vertexCount * 3];
 		for (var i = 0; i < mesh.vertexCount; i++) {
 			v[3 * i + 0] = unityV[i].x;
@@ -209,7 +207,9 @@ public unsafe class CoACD : MonoBehaviour
 				EditorUtility.ClearProgressBar();
 				EditorUtility.DisplayProgressBar("Calculating Colliders", $"Processing mesh... ({c++}/{meshesToDecompose.Count}) (this can take a while)",
 					Mathf.Lerp(0.4f, 0.7f, Mathf.InverseLerp(1, meshesToDecompose.Count + 1, c)));
-				var tempMeshes = RunACD(meshToDecompose);
+				var unityV = meshToDecompose.vertices;
+				var unityF = meshToDecompose.triangles;
+				var tempMeshes = RunACD(unityV, unityF);
 				decomposedMeshes.AddRange(tempMeshes);
 			}
 		}
@@ -291,7 +291,9 @@ public unsafe class CoACD : MonoBehaviour
 				EditorUtility.ClearProgressBar();
 				EditorUtility.DisplayProgressBar("Calculating Colliders for Hierarchy", $"Processing mesh... ({c++}/{meshesToDecompose.Count}) (this can take a while)",
 					Mathf.Lerp(0.5f, 0.7f, Mathf.InverseLerp(1, meshesToDecompose.Count + 1, c)));
-				var tempMeshes = RunACD(meshToDecompose);
+				var unityV = meshToDecompose.vertices;
+				var unityF = meshToDecompose.triangles;
+				var tempMeshes = RunACD(unityV, unityF);
 				decomposedMeshes.AddRange(tempMeshes);
 			}
 		}
